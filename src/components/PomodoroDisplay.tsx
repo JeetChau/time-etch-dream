@@ -128,7 +128,7 @@ const PomodoroDisplay = () => {
       </div>
 
       <div className="flex gap-4">
-        <Button variant="outline" size="lg" onClick={toggle} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
+        <Button data-action="toggle" variant="outline" size="lg" onClick={toggle} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
           {isRunning ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
           {isRunning ? "Pause" : "Start"}
         </Button>
