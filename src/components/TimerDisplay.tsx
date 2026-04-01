@@ -51,7 +51,7 @@ const TimerDisplay = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, remaining]);
+  }, [isRunning, remaining, playChime, totalSeconds]);
 
   // Sync remaining to DOM for PiP
   useLayoutEffect(() => {
