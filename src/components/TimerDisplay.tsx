@@ -125,16 +125,16 @@ const TimerDisplay = () => {
 
       <div className="flex gap-4">
         {editMode ? (
-          <Button variant="outline" size="lg" onClick={startTimer} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
+          <Button data-action="toggle" variant="outline" size="lg" onClick={startTimer} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
             <Play className="w-4 h-4 mr-2" /> Start
           </Button>
         ) : (
           <>
-            <Button variant="outline" size="lg" onClick={togglePause} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
+            <Button data-action="toggle" variant="outline" size="lg" onClick={togglePause} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
               {isRunning ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
               {isRunning ? "Pause" : "Resume"}
             </Button>
-            <Button variant="ghost" size="lg" onClick={reset} className="font-serif tracking-widest text-muted-foreground hover:text-foreground">
+            <Button data-action="reset" variant="ghost" size="lg" onClick={reset} className="font-serif tracking-widest text-muted-foreground hover:text-foreground">
               <RotateCcw className="w-4 h-4 mr-2" /> Reset
             </Button>
           </>
