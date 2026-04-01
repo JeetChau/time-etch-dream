@@ -38,6 +38,10 @@ const TimerDisplay = () => {
         setRemaining((prev) => {
           if (prev <= 1) {
             setIsRunning(false);
+            playChime();
+            addFocusSession(totalSeconds);
+            setFlash(true);
+            setTimeout(() => setFlash(false), 2000);
             return 0;
           }
           return prev - 1;
