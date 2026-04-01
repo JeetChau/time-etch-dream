@@ -5,13 +5,32 @@ import Hourglass from "./Hourglass";
 import { addFocusSession } from "@/lib/focusStats";
 
 const TimerDisplay = () => {
-  const [totalSeconds, setTotalSeconds] = useState(300); // 5 min default
+  const [totalSeconds, setTotalSeconds] = useState(300);
   const [remaining, setRemaining] = useState(300);
   const [isRunning, setIsRunning] = useState(false);
   const [editMode, setEditMode] = useState(true);
+  const [flash, setFlash] = useState(false);
   const [inputMinutes, setInputMinutes] = useState("05");
   const [inputSeconds, setInputSeconds] = useState("00");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioRef = useRef<AudioContext | null>(null);
+
+  const playChime = useCallback(() => {
+    try {
+      const ctx = new AudioContext();
+      audioRef.current = ctx;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 520;
+      osc.type = "sine";
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
+      osc.start();
+      osc.stop(ctx.currentTime + 2);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     if (isRunning && remaining > 0) {
