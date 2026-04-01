@@ -2,15 +2,35 @@ import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import Hourglass from "./Hourglass";
+import { addFocusSession } from "@/lib/focusStats";
 
 const TimerDisplay = () => {
-  const [totalSeconds, setTotalSeconds] = useState(300); // 5 min default
+  const [totalSeconds, setTotalSeconds] = useState(300);
   const [remaining, setRemaining] = useState(300);
   const [isRunning, setIsRunning] = useState(false);
   const [editMode, setEditMode] = useState(true);
+  const [flash, setFlash] = useState(false);
   const [inputMinutes, setInputMinutes] = useState("05");
   const [inputSeconds, setInputSeconds] = useState("00");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioRef = useRef<AudioContext | null>(null);
+
+  const playChime = useCallback(() => {
+    try {
+      const ctx = new AudioContext();
+      audioRef.current = ctx;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 520;
+      osc.type = "sine";
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
+      osc.start();
+      osc.stop(ctx.currentTime + 2);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     if (isRunning && remaining > 0) {
@@ -18,6 +38,10 @@ const TimerDisplay = () => {
         setRemaining((prev) => {
           if (prev <= 1) {
             setIsRunning(false);
+            playChime();
+            addFocusSession(totalSeconds);
+            setFlash(true);
+            setTimeout(() => setFlash(false), 2000);
             return 0;
           }
           return prev - 1;
@@ -27,7 +51,7 @@ const TimerDisplay = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, remaining]);
+  }, [isRunning, remaining, playChime, totalSeconds]);
 
   // Sync remaining to DOM for PiP
   useLayoutEffect(() => {
@@ -60,7 +84,7 @@ const TimerDisplay = () => {
   const displaySecs = (remaining % 60).toString().padStart(2, "0");
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className={`flex flex-col items-center gap-8 transition-all duration-500 ${flash ? "bg-sand/5 rounded-2xl p-8" : ""}`}>
       <Hourglass progress={progress} isRunning={isRunning} />
 
       {editMode ? (
@@ -101,16 +125,16 @@ const TimerDisplay = () => {
 
       <div className="flex gap-4">
         {editMode ? (
-          <Button variant="outline" size="lg" onClick={startTimer} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
+          <Button data-action="toggle" variant="outline" size="lg" onClick={startTimer} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
             <Play className="w-4 h-4 mr-2" /> Start
           </Button>
         ) : (
           <>
-            <Button variant="outline" size="lg" onClick={togglePause} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
+            <Button data-action="toggle" variant="outline" size="lg" onClick={togglePause} className="font-serif tracking-widest border-sand/30 text-sand hover:bg-sand/10 hover:text-foreground">
               {isRunning ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
               {isRunning ? "Pause" : "Resume"}
             </Button>
-            <Button variant="ghost" size="lg" onClick={reset} className="font-serif tracking-widest text-muted-foreground hover:text-foreground">
+            <Button data-action="reset" variant="ghost" size="lg" onClick={reset} className="font-serif tracking-widest text-muted-foreground hover:text-foreground">
               <RotateCcw className="w-4 h-4 mr-2" /> Reset
             </Button>
           </>
