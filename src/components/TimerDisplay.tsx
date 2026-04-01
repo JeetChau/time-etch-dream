@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import Hourglass from "./Hourglass";
+import { addFocusSession } from "@/lib/focusStats";
 
 const TimerDisplay = () => {
   const [totalSeconds, setTotalSeconds] = useState(300); // 5 min default
