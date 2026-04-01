@@ -29,6 +29,12 @@ const TimerDisplay = () => {
     };
   }, [isRunning, remaining]);
 
+  // Sync remaining to DOM for PiP
+  useLayoutEffect(() => {
+    const el = document.getElementById("timer-remaining");
+    if (el) el.dataset.remaining = String(remaining);
+  }, [remaining]);
+
   const progress = totalSeconds > 0 ? 1 - remaining / totalSeconds : 0;
 
   const startTimer = useCallback(() => {
