@@ -75,7 +75,7 @@ const StopwatchDisplay = () => {
           </Button>
         )}
         {elapsed > 0 && !isRunning && (
-          <Button variant="ghost" size="lg" onClick={reset} className="font-serif tracking-widest text-muted-foreground hover:text-foreground">
+          <Button data-action="reset" variant="ghost" size="lg" onClick={reset} className="font-serif tracking-widest text-muted-foreground hover:text-foreground">
             <RotateCcw className="w-4 h-4 mr-2" /> Reset
           </Button>
         )}
