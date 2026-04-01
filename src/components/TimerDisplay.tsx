@@ -84,7 +84,7 @@ const TimerDisplay = () => {
   const displaySecs = (remaining % 60).toString().padStart(2, "0");
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className={`flex flex-col items-center gap-8 transition-all duration-500 ${flash ? "bg-sand/5 rounded-2xl p-8" : ""}`}>
       <Hourglass progress={progress} isRunning={isRunning} />
 
       {editMode ? (
