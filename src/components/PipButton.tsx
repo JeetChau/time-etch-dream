@@ -11,7 +11,7 @@ interface PipButtonProps {
 const PipButton = ({ mode }: PipButtonProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const animFrameRef = useRef<number>(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const drawFrame = useCallback((canvas: HTMLCanvasElement, currentMode: string) => {
     const ctx = canvas.getContext("2d");
@@ -72,8 +72,6 @@ const PipButton = ({ mode }: PipButtonProps) => {
     ctx.fillStyle = "#666";
     ctx.font = "14px 'Cormorant Garamond', serif";
     ctx.fillText(label, w / 2, h / 2 + 40);
-
-    animFrameRef.current = requestAnimationFrame(() => drawFrame(canvas, currentMode));
   }, []);
 
   const openPip = useCallback(async () => {
@@ -97,15 +95,24 @@ const PipButton = ({ mode }: PipButtonProps) => {
       await videoRef.current.play();
       await videoRef.current.requestPictureInPicture();
 
+      // Use setInterval instead of requestAnimationFrame so it keeps
+      // running when the browser tab is in the background
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = setInterval(() => {
+        if (canvasRef.current) drawFrame(canvasRef.current, mode);
+      }, 500);
+
       videoRef.current.addEventListener("leavepictureinpicture", () => {
-        cancelAnimationFrame(animFrameRef.current);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       }, { once: true });
     } catch (err) {
       console.error("PiP not supported or failed:", err);
     }
   }, [mode, drawFrame]);
 
-  // Don't show PiP for stats
   if (mode === "stats") return null;
 
   return (
